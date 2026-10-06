@@ -1,0 +1,16 @@
+# Рабочие материалы остаются на диске автора и в репозиторий не попадают
+# trips/ — закрытый репозиторий ssveretennikov/world-trips (своя папка со своим git), в сайт не идёт
+/trips/
+_artifact/
+__pycache__/
+*.pyc
+/*.md
+!/README.md
+агенты/
+.claude/
+*/cards/
+*/platform.html
+makety.*
+макеты-главной.html
+# страницы для локальной проверки (python build.py --local-video)
+/[a-z][a-z]-[0-9][0-9][0-9][0-9]-*/index.local.html

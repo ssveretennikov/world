@@ -1,0 +1,740 @@
+/* Серия отчётов по регионам России.
+   Layout: одна колонка чтения 42rem, фото выходят за неё на 62rem.
+   Код региона — простая плашка с числом. У каждого региона свой цвет --reg,
+   взятый из его главного кадра (у Магадана охра). */
+
+/* Шрифты лежат на сайте (fonts/, лицензии OFL там же), а не грузятся с Google Fonts: оттуда они доходят не всегда,
+   и без них страница вставала на Arial. Файлы переменные — один на все начертания; только кириллица и латиница.
+   Пути — от этого файла стилей, поэтому подходят и страницам регионов, и 404. */
+@font-face{font-family:"Golos Text";font-style:normal;font-weight:400 600;font-display:swap;src:url(fonts/golos-text-cyrillic.woff2) format("woff2");unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116}
+@font-face{font-family:"Golos Text";font-style:normal;font-weight:400 600;font-display:swap;src:url(fonts/golos-text-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Oswald";font-style:normal;font-weight:500 600;font-display:swap;src:url(fonts/oswald-cyrillic.woff2) format("woff2");unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116}
+@font-face{font-family:"Oswald";font-style:normal;font-weight:500 600;font-display:swap;src:url(fonts/oswald-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"Unbounded";font-style:normal;font-weight:600 800;font-display:swap;src:url(fonts/unbounded-cyrillic.woff2) format("woff2");unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116}
+@font-face{font-family:"Unbounded";font-style:normal;font-weight:600 800;font-display:swap;src:url(fonts/unbounded-latin.woff2) format("woff2");unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+
+:root{
+  --bg:#F1F2EE;
+  --surface:#FFFFFF;
+  --ink:#15181B;
+  --soft:#596069;
+  --line:#D3D7D0;
+  --road:#1F4FB4;          /* синий дорожного знака: ссылки и навигация */
+  --heart:#C2283B;
+  --reg:#B87512;           /* цвет региона, по умолчанию охра */
+  --sky:#1F6FE5;--sky-deep:#124A9E;--sky-bg:#EDF4FF;--sun:#FFC83D;   /* главная: «Небо» */
+  --a0:#0E3F8C;--a1:#2264D6;--a2:#5592EE;--a3:#93BBF7;   /* карта по годам: 0 — последний год, самый насыщенный */
+  --reg-ink:#FFFFFF;
+  --note-bg:#FFF4C2;
+  --note-ink:#4A3A00;
+  --note-line:#E3C64A;
+  --display:"Unbounded","Arial Black","Segoe UI",system-ui,sans-serif;
+  --body:"Golos Text","Segoe UI",Roboto,system-ui,sans-serif;
+  --sign:"Oswald","Arial Narrow","Roboto Condensed",Impact,sans-serif;
+  --col:42rem;
+  --wide:62rem;
+  --gutter:clamp(16px,4vw,40px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#101315;--surface:#181C1F;--ink:#E8EBE8;--soft:#9BA4A9;--line:#2B3136;
+    --road:#8FB2FF;--heart:#FF6B7C;
+    --reg:#E3A53A;--reg-ink:#1A1100;--note-bg:#3A3210;--note-ink:#FFE9A0;--note-line:#6B5A16;
+    --sky:#2A63C4;--sky-deep:#A9C8FF;--sky-bg:#0E1726;
+    --a0:#A9C8FF;--a1:#5C9BFF;--a2:#2D6FD6;--a3:#1E4C99;   /* на тёмном заметнее светлое: последний год — самый светлый */
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101315;--surface:#181C1F;--ink:#E8EBE8;--soft:#9BA4A9;--line:#2B3136;
+  --road:#8FB2FF;--heart:#FF6B7C;
+  --reg:#E3A53A;--reg-ink:#1A1100;--note-bg:#3A3210;--note-ink:#FFE9A0;--note-line:#6B5A16;
+  --sky:#2A63C4;--sky-deep:#A9C8FF;--sky-bg:#0E1726;
+  --a0:#A9C8FF;--a1:#5C9BFF;--a2:#2D6FD6;--a3:#1E4C99;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.6;-webkit-font-smoothing:antialiased}
+img,video{display:block;max-width:100%;height:auto}
+p{margin:0;text-wrap:pretty}
+a{color:var(--road);text-underline-offset:.18em}
+:focus-visible{outline:3px solid var(--road);outline-offset:3px}
+.page{padding-inline:var(--gutter);padding-block:0 4.5rem}
+
+/* ---------- код региона ---------- */
+.code{display:inline-flex;align-items:center;justify-content:center;background:var(--ink);color:var(--bg);font-family:var(--sign);font-weight:600;line-height:1;font-size:1.25rem;min-width:2.1em;padding:.32em .3em .36em;text-decoration:none;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+
+/* ---------- верхняя полоса ---------- */
+.topbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem 1.2rem;padding-block:1rem;font-family:var(--sign);font-size:.95rem;letter-spacing:.05em;text-transform:uppercase;max-width:var(--wide);margin-inline:auto}
+.topbar a{text-decoration:none}
+.topbar a:hover{text-decoration:underline}
+.draft-toggle{font:inherit;letter-spacing:inherit;text-transform:inherit;background:var(--note-bg);color:var(--note-ink);border:1px solid var(--note-line);padding:.3rem .7rem;cursor:pointer}
+
+/* ---------- шапка региона ---------- */
+.reg-head{max-width:var(--wide);margin-inline:auto;display:flex;flex-direction:column;gap:1.4rem;padding-top:clamp(1rem,3vw,2.2rem)}
+.reg-id{display:flex;align-items:center;gap:clamp(1rem,3vw,1.8rem);flex-wrap:wrap}
+.reg-id .code{font-size:clamp(2.6rem,8vw,4.4rem);background:var(--reg);color:var(--reg-ink)}
+.reg-name{display:flex;flex-direction:column;gap:.35rem;min-width:0}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(1.7rem,5.2vw,3.4rem);line-height:1.05;letter-spacing:-.02em;margin:0;text-wrap:balance;overflow-wrap:anywhere}
+.reg-places{font-family:var(--sign);font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.hook{font-size:clamp(1.25rem,2.6vw,1.6rem);line-height:1.35;max-width:36ch;font-weight:500}
+.hook::before{content:"";display:block;width:3.2rem;height:.4rem;background:var(--reg);margin-bottom:.9rem}
+.passport{display:flex;flex-wrap:wrap;gap:.4rem 1.6rem;margin:0;padding:.8rem 0;border-block:1px solid var(--line);font-family:var(--sign);font-size:1rem;letter-spacing:.04em;text-transform:uppercase}
+.passport div{display:flex;gap:.45rem;align-items:baseline}
+.passport dt{color:var(--soft)}
+.passport dd{margin:0;font-weight:600}
+.passport .heart{color:var(--heart)}
+
+.route{display:flex;flex-wrap:wrap;gap:.3rem .6rem;font-family:var(--sign);font-size:1rem;letter-spacing:.05em;text-transform:uppercase;color:var(--soft);margin:0;padding:0;list-style:none}
+.route li + li::before{content:"→";margin-right:.6rem;color:var(--soft)}
+.route .here{color:var(--ink);font-weight:600;border-bottom:.2rem solid var(--reg)}
+
+/* ---------- текст ---------- */
+.story{display:flex;flex-direction:column;gap:clamp(3rem,7vw,5rem);margin-top:clamp(2rem,5vw,3rem)}
+.sec{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,var(--col)) minmax(0,1fr);row-gap:1.15rem}
+.sec > *{grid-column:2;min-width:0}
+.day{font-family:var(--sign);font-size:1rem;letter-spacing:.08em;text-transform:uppercase;color:var(--reg);font-weight:600}
+h2{font-family:var(--display);font-weight:800;font-size:clamp(1.45rem,3.8vw,2.2rem);line-height:1.1;letter-spacing:-.015em;margin:0 0 .2rem;text-wrap:balance}
+.lead{font-size:1.2rem;line-height:1.5}
+.rubric{display:inline-block;align-self:start;justify-self:start;font-family:var(--sign);font-weight:600;font-size:.9rem;letter-spacing:.09em;text-transform:uppercase;background:var(--ink);color:var(--bg);padding:.2rem .6rem}
+.facts{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:.6rem}
+.facts li{padding-left:1.25rem;position:relative}
+.facts li::before{content:"";position:absolute;left:0;top:.62em;width:.55rem;height:.55rem;background:var(--reg)}
+
+/* ---------- медиа ---------- */
+figure{margin:0}
+.sec > .wide{grid-column:1/-1;width:100%;max-width:var(--wide);margin-inline:auto;margin-block:.5rem}
+.sec > .mid{grid-column:1/-1;width:100%;max-width:var(--col);margin-inline:auto}
+.sec > .tall{grid-column:1/-1;width:100%;max-width:26rem;margin-inline:auto;margin-block:.5rem}
+.sec > .row{grid-column:1/-1;width:100%;max-width:var(--wide);margin-inline:auto;margin-block:.5rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start}
+.sec > .row.r3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.sec > .row.narrow{max-width:46rem}
+@media (max-width:640px){.sec > .row,.sec > .row.r3{grid-template-columns:minmax(0,1fr)}.sec > .row figure{max-width:30rem}}
+.ph{background:var(--surface);overflow:hidden}
+.ph img,.ph video{width:100%}
+figcaption{padding-top:.5rem;font-size:.95rem;line-height:1.45;color:var(--ink)}
+figcaption time{font-family:var(--sign);font-size:.85rem;letter-spacing:.06em;color:var(--soft);margin-right:.5rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+figcaption .credit{color:var(--soft)}
+.hero-ph img{aspect-ratio:16/9;object-fit:cover;object-position:50% 45%}
+@media (max-width:640px){.hero-ph img{aspect-ratio:4/3}}
+
+/* ---------- чек и счёт ---------- */
+.bill{background:var(--surface);border:1px solid var(--line);padding:1.1rem 1.2rem;font-family:var(--sign);font-size:1.02rem;letter-spacing:.02em;display:flex;flex-direction:column;gap:.35rem;margin:0;font-variant-numeric:tabular-nums}
+.bill .bill-h{text-transform:uppercase;letter-spacing:.08em;color:var(--soft);font-size:.85rem;padding-bottom:.4rem;border-bottom:1px dashed var(--line);margin-bottom:.3rem}
+.bill div{display:flex;align-items:baseline;gap:.5rem}
+.bill dt{min-width:0}
+.bill div::after{content:"";order:1;flex:1 1 1rem;border-bottom:1px dotted var(--soft);transform:translateY(-.25em)}
+.bill dd{order:2;margin:0;white-space:nowrap;font-weight:600}
+.bill .total{border-top:1px dashed var(--line);margin-top:.4rem;padding-top:.6rem;font-size:1.25rem}
+.bill .total dt{text-transform:uppercase;letter-spacing:.06em}
+
+.verdict{background:var(--reg);color:var(--reg-ink);padding:1.3rem 1.4rem;display:flex;flex-direction:column;gap:.5rem}
+.verdict .v-mark{font-family:var(--display);font-weight:800;font-size:1.5rem;line-height:1.15}
+.ask{font-size:1.2rem;line-height:1.45;font-weight:500}
+.sources{font-size:.85rem;color:var(--soft);line-height:1.5}
+.sources a{color:inherit}
+
+/* ---------- пометки для автора ---------- */
+.note{background:var(--note-bg);color:var(--note-ink);border-left:4px solid var(--note-line);padding:.55rem .8rem;font-size:.95rem;line-height:1.45}
+.note::before{content:"✎ уточнить: ";font-family:var(--sign);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+body.clean .note{display:none}
+/* дневниковая строка-переезд (элемент стиля Б, решение автора 06.10.2026): «ЧЧ:ММ. Поезд ещё идёт.» — тише абзаца, время жирным */
+.story .jot{color:var(--muted,#6b6b6b);font-size:.95rem;margin:.9rem 0 .4rem}
+.story .jot b{color:var(--ink,inherit);font-variant-numeric:tabular-nums;margin-right:.35em}
+
+/* ---------- навигация по серии ---------- */
+.pager{max-width:var(--wide);margin:clamp(3rem,7vw,5rem) auto 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;border-top:1px solid var(--line);padding-top:1.4rem;font-family:var(--sign);letter-spacing:.04em;text-transform:uppercase}
+.pager .code{font-size:1rem}
+.pager a{display:flex;align-items:center;gap:.7rem;text-decoration:none;color:var(--ink);min-width:0}
+.pager a span{min-width:0;overflow-wrap:anywhere;font-size:.95rem}
+.pager small{display:block;color:var(--soft);font-size:.8rem;letter-spacing:.06em}
+.pager a:hover span{text-decoration:underline}
+.pager .next{justify-content:flex-end;text-align:right}
+@media (max-width:560px){.pager{grid-template-columns:minmax(0,1fr)}.pager .next{justify-content:flex-start;text-align:left}}
+
+/* ---------- общий пост ---------- */
+.ix-head{max-width:var(--wide);margin-inline:auto;padding-top:clamp(1.5rem,5vw,3.5rem);display:flex;flex-direction:column;gap:1.5rem}
+.ix-kicker{font-family:var(--sign);font-size:1.05rem;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.ix-intro{display:flex;flex-direction:column;gap:1rem;max-width:var(--col)}
+.fo{max-width:var(--wide);margin:clamp(2.5rem,6vw,4rem) auto 0;display:flex;flex-direction:column;gap:1.1rem}
+.fo-h{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:.5rem}
+.fo-h h2{margin:0;font-size:clamp(1.15rem,2.8vw,1.5rem)}
+.fo-h span{font-family:var(--sign);font-size:1.15rem;letter-spacing:.05em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.regs{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(17rem,1fr));gap:.9rem 1.4rem}
+.reg{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.85rem;align-items:center;min-width:0}
+
+.reg-t{display:flex;flex-direction:column;gap:.1rem;min-width:0;line-height:1.3}
+.reg-t a,.reg-t .nm{font-weight:600;color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+.reg-t a:hover{text-decoration:underline}
+.reg-t small{color:var(--soft);font-size:.88rem;overflow-wrap:anywhere}
+.reg-t small a{font-weight:400;color:var(--road)}
+.reg .hrt{color:var(--heart)}
+.reg.none .code{background:transparent;color:var(--soft);outline:1px dashed var(--soft);outline-offset:-1px}
+.reg.none .nm{color:var(--soft);font-weight:500}
+.reg.new{outline:2px solid var(--reg);outline-offset:.5rem}
+.tag{display:inline-block;font-family:var(--sign);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;background:var(--reg);color:var(--reg-ink);padding:.05rem .4rem;margin-left:.4rem;vertical-align:.1em;font-weight:600}
+.ix-foot{max-width:var(--wide);margin:clamp(2.5rem,6vw,4rem) auto 0;color:var(--soft);font-size:.95rem;display:flex;flex-direction:column;gap:.8rem}
+.reg a.code:hover{background:var(--reg);color:var(--reg-ink)}
+
+/* ---------- страница 404 ---------- */
+.lost{max-width:var(--col);margin:clamp(3rem,12vw,7rem) auto 0;display:flex;flex-direction:column;align-items:flex-start;gap:1.2rem}
+.lost .code{font-size:clamp(2.6rem,10vw,4.4rem);background:var(--reg);color:var(--reg-ink)}
+.lost h1{font-size:clamp(1.5rem,5vw,2.4rem)}
+
+/* ---------- главная · «Небо» ---------- */
+body:has(.ix-page){background:var(--sky-bg)}
+.ix-page .ix-head{max-width:none;background:var(--sky);color:#fff;box-shadow:0 0 0 100vmax var(--sky);clip-path:inset(0 -100vmax);padding:clamp(1.5rem,5vw,3rem) 0 clamp(1.6rem,4vw,2.6rem)}
+/* содержимое шапки — по той же колонке, что карта и список: без отступа текст прижимался к левому краю широкого экрана */
+.ix-page .ix-head{padding-inline:max(0px,calc((100% - var(--wide)) / 2))}
+.ix-page .ix-kicker{color:#fff}   /* без прозрачности: белый .85 на синем — 3,75:1, мелкий капс не читался */
+/* прогресс: главная — о том, сколько регионов пройдено */
+.ix-stats{display:flex;flex-direction:column;gap:.75rem}
+.ix-big{font-family:var(--display);font-weight:600;font-size:1.15rem;display:flex;align-items:baseline;gap:.2rem .5rem;flex-wrap:wrap;line-height:1}
+.ix-big b{font-weight:800;font-size:clamp(3rem,7vw,4.6rem);letter-spacing:-.03em}
+.ix-big span{font-family:var(--body);font-weight:500}
+.ix-bar{height:.6rem;border-radius:999px;background:rgba(255,255,255,.3);overflow:hidden}
+.ix-bar i{display:block;height:100%;border-radius:inherit;background:var(--sun)}
+.ix-facts{margin:0;display:flex;flex-direction:column;gap:.35rem;font-size:.95rem;line-height:1.35}
+.ix-facts div{display:flex;flex-wrap:wrap;gap:.1rem .6rem;align-items:baseline}
+.ix-facts dt{font-family:var(--sign);font-size:.88rem;letter-spacing:.08em;text-transform:uppercase}
+.ix-facts dd{margin:0;font-weight:500}
+@media (min-width:900px){
+  .ix-page .ix-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(16rem,21rem);column-gap:clamp(2rem,5vw,4.5rem);
+    grid-template-areas:"top top" "title stats" "intro stats";align-items:start}
+  .ix-page .ix-top{grid-area:top}
+  .ix-page .ix-head h1{grid-area:title}
+  .ix-page .ix-intro{grid-area:intro}
+  .ix-stats{grid-area:stats;align-self:end}
+}
+.ix-page h1::after{content:"";display:block;width:4.5rem;height:.5rem;border-radius:999px;background:var(--sun);margin-top:1rem}
+.ix-page .ix-intro a{color:#fff}
+.ix-page .fo{background:var(--surface);border-radius:1.1rem;padding:clamp(1rem,3vw,1.6rem)}
+.ix-page .fo-h{border-bottom:0;padding-bottom:0}
+.ix-page .fo-h h2{color:var(--sky-deep)}
+.ix-page .code{background:var(--sky);color:#fff;border-radius:999px;min-width:2.3em;height:2.3em;padding:0}
+.ix-page .reg.none .code{background:transparent;color:var(--soft)}
+.ix-page .reg.new{outline:0}   /* рамка отмечала отчёты на сайте, пока их было мало; теперь они почти все здесь */
+.ix-page .reg a.code:hover{background:var(--sky-deep);color:#fff}
+.ix-page .ix-foot{margin-bottom:0}
+
+.mapbox{max-width:var(--wide);margin:clamp(1.4rem,4vw,2.2rem) auto 0;background:var(--surface);border-radius:1.1rem;padding:clamp(.8rem,2.5vw,1.4rem);display:flex;flex-direction:column;gap:.9rem}
+.filters{display:flex;flex-direction:column;gap:.5rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{font:600 .88rem/1 var(--body);padding:.5rem .8rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;cursor:pointer}
+.chip:hover{border-color:var(--sky)}
+.chip[aria-pressed="true"]{background:var(--sky);border-color:var(--sky);color:#fff}
+.rumap{width:100%;height:auto;display:block;touch-action:manipulation}
+/* толщина обводки — в точках экрана, а не в единицах карты: при увеличении округа границы не толстеют */
+/* цвет — по году первой поездки (data-age: 0 — последний год). Свежие годы заметнее: в них всего 8 регионов из 83,
+   ровной заливкой они терялись. Без года (Москва, дом) — как самый ранний. Выбранный регион — жёлтый, не путается с годами. */
+.rumap .r{--c:var(--a3);fill:var(--c);stroke:var(--surface);stroke-width:.7;stroke-linejoin:round;cursor:pointer;transition:opacity .2s,fill .15s;vector-effect:non-scaling-stroke}
+.rumap .r[data-age="0"]{--c:var(--a0)}
+.rumap .r[data-age="1"]{--c:var(--a1)}
+.rumap .r[data-age="2"]{--c:var(--a2)}
+.rumap .r.tiny{stroke:var(--c);stroke-width:3}
+.rumap .r:hover,.rumap .r.on{--c:var(--sun)}
+.rumap .r.dim{opacity:.14;pointer-events:none}
+.rumap .r:focus-visible{outline:none;stroke:var(--ink);stroke-width:2.2}
+.mcard{display:flex;align-items:center;gap:.8rem;min-height:3.6rem;padding:.55rem .8rem;border-radius:.8rem;background:var(--sky-bg)}
+.mcard .mt{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.3}
+.mcard small{color:var(--soft)}
+.mcard .go{font-weight:600;white-space:nowrap}
+.mth{width:6rem;aspect-ratio:4/3;object-fit:cover;border-radius:.55rem;flex:none;background:var(--line)}
+.ix-page .reg{grid-template-columns:auto minmax(0,1fr) auto}
+.reg .th{width:4rem;aspect-ratio:4/3;height:auto;object-fit:cover;border-radius:.45rem;background:var(--sky-bg)}
+/* поиск — над лентой и списком */
+.ix-find{max-width:var(--wide);margin:clamp(2rem,5vw,3rem) auto 0;display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1.2rem}
+.ix-find input{flex:1 1 16rem;font:inherit;font-size:1rem;padding:.7rem 1rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0}
+.ix-find input:focus-visible{outline:3px solid var(--sky);outline-offset:1px}
+.ix-none{max-width:var(--wide);margin:1.5rem auto 0;color:var(--soft)}
+.ix-page .ix-find + .ix-none + .fo{margin-top:1.2rem}
+.ix-page .fo.ahead{background:transparent;border:2px dashed var(--line)}
+.ix-page .fo.ahead .fo-h h2{color:var(--soft)}
+@media (max-width:640px){
+  .ix-page .regs{gap:.7rem}
+  .reg .th{width:3.4rem}
+}
+.mcard .mh{display:flex;align-items:center;gap:.55rem;min-width:0}
+.mcard .mh .code{font-size:.95rem;flex:none}
+.mcard .mt{gap:.25rem}
+/* телефон: фото слева, справа название, подпись и ссылка — в строку всё не входит */
+@media (max-width:640px){
+  .mcard:has(.mth){display:grid;grid-template-columns:5.5rem minmax(0,1fr);column-gap:.75rem;row-gap:.4rem;align-items:start}
+  .mcard .mth{width:100%;height:auto;grid-row:span 2;align-self:start}
+  .mcard .go{justify-self:start}
+}
+.mhint{color:var(--soft);font-size:.95rem}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;list-style:none;margin:0;padding:0;font-size:.9rem;color:var(--soft)}
+.legend li{display:flex;align-items:center;gap:.4rem}
+.legend i{width:.9rem;height:.9rem;border-radius:999px;display:inline-block}
+.k-a0{background:var(--a0)}.k-a1{background:var(--a1)}.k-a2{background:var(--a2)}.k-a3{background:var(--a3)}
+.mapwrap{position:relative}
+/* дата хронологии прямо на карте: внизу слева под Кавказом пусто, а табло под картой на телефоне за экраном */
+.mapdate{position:absolute;left:0;bottom:0;margin:0;pointer-events:none;font-family:var(--sign);font-size:clamp(1rem,3.4vw,1.8rem);letter-spacing:.03em;line-height:1.1;color:var(--sky-deep);text-shadow:0 0 4px var(--surface),0 0 8px var(--surface)}
+.mapdate small{display:block;font-family:var(--body);font-size:.55em;letter-spacing:0;color:var(--soft)}
+.mapbtns{display:flex;gap:.4rem;flex-wrap:wrap}
+.mapbar{display:flex;justify-content:space-between;align-items:center;gap:.5rem 1rem;flex-wrap:wrap}
+.zoom{font:600 .88rem/1 var(--body);padding:.55rem .9rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.zoom:hover{border-color:var(--sky)}
+/* «Путь по годам»; не .story — это имя занято столбцом текста на страницах регионов */
+.zoom.mstory{display:inline-flex;align-items:center;gap:.35rem;background:var(--sky);border-color:var(--sky);color:#fff}
+.zoom.mstory:hover{border-color:var(--sky-deep)}
+.mstory svg{width:.95rem;height:.95rem;fill:currentColor;flex:none}
+.mstory .i-pause,.mstory.playing .i-play{display:none}
+.mstory.playing .i-pause{display:block}
+.totop{position:fixed;right:max(1rem,env(safe-area-inset-right));bottom:max(1rem,env(safe-area-inset-bottom));z-index:20;padding:.75rem 1.05rem;border-radius:999px;background:var(--sky);color:#fff;font:600 .9rem/1 var(--body);text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+/* телефон: карта должна попасть на первый экран — шапка короче, фильтры в одну строку с прокруткой вбок */
+@media (max-width:640px){
+  .ix-page .ix-top{flex-wrap:nowrap;align-items:flex-start}
+  .legend{gap:.25rem .8rem;font-size:.85rem}
+  .zoom{font-size:.82rem;padding:.5rem .75rem}
+  .ix-page .ix-kicker{font-size:.85rem}
+  .ix-page .ix-head{gap:.9rem;padding-block:1.1rem 1.3rem}
+  .ix-page h1::after{margin-top:.6rem;height:.4rem}
+  .ix-how{display:none}
+  .ix-stats{gap:.55rem}
+  .ix-big b{font-size:2.6rem}
+  .ix-facts{font-size:.88rem;gap:.15rem}
+  .ix-facts dt{font-size:.8rem}
+  .mapbox{margin-top:1rem}
+  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-.8rem;padding-inline:.8rem}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none}
+}
+.h-touch{display:none}
+@media (hover:none){.h-mouse{display:none}.h-touch{display:inline}}
+[hidden]{display:none!important}
+.rumap .r:focus{outline:none}
+
+.tl{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"ctl track" "read read" "all all";gap:.7rem 1rem;align-items:center;padding:.8rem;border-radius:.8rem;background:var(--sky-bg)}
+.tl-ctl{grid-area:ctl;display:flex;gap:.4rem}
+.tl-ctl button{width:2.6rem;height:2.6rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.tl-ctl svg{width:1.15rem;height:1.15rem;fill:currentColor}
+.tl-ctl .i-pause,.tl-ctl .playing .i-play{display:none}
+.tl-ctl .playing .i-pause{display:block}
+.tl-ctl button:disabled{opacity:.4;cursor:not-allowed}
+.tl-ctl .play{background:var(--sky);border-color:var(--sky);color:#fff}
+.tl-track{grid-area:track;position:relative;padding-bottom:1.6rem}
+.tl-track input{width:100%;margin:0;accent-color:var(--sky)}
+/* отступы по краям = половина бегунка: края полосы ползунка не доходят до краёв блока */
+.ruler{position:absolute;left:.5rem;right:.5rem;bottom:0;height:1.4rem;font-family:var(--sign);font-size:.8rem;color:var(--soft)}
+.ruler span{position:absolute;bottom:0;white-space:nowrap;line-height:1;padding-left:.3rem;border-left:1px solid var(--line);padding-top:.35rem}
+.ruler b{font-weight:inherit}
+.ruler.short b{display:none}
+.ruler.short span::before{content:'\2019'}
+.ruler i{position:absolute;top:0;width:2px;height:.4rem;margin-left:-1px;border-radius:1px;background:var(--sky);opacity:.55}
+.tl-read{grid-area:read;display:flex;flex-direction:column;gap:.1rem}
+.tl-read strong{font-family:var(--sign);font-size:1.25rem;letter-spacing:.03em;color:var(--sky-deep);font-variant-numeric:tabular-nums}
+.tl-read span{color:var(--soft);font-size:.9rem}
+.tl-all{grid-area:all;justify-self:start;font:600 .88rem/1 var(--body);padding:.55rem .9rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+/* «ещё не доехал» в хронологии: смесь, а не прозрачный --line — в тёмной теме тот сливался с фоном, и страна пропадала */
+.rumap .r.later{fill:color-mix(in srgb,var(--soft) 35%,var(--surface));pointer-events:none}
+.rumap .r.arr{--c:var(--sun);stroke:var(--ink);stroke-width:1.2;animation:arrive .8s ease-out}
+@keyframes arrive{0%{stroke-width:6}100%{stroke-width:1.2}}
+@media (prefers-reduced-motion:reduce){.rumap .r{transition:none}.rumap .r.arr{animation:none}}
+
+/* «ещё впереди» — штриховка, а не просто серый: ровная серая заливка сливалась с фоном карты (контраст 1,5:1) */
+.hatch rect{fill:var(--line)}
+.hatch line{stroke:var(--soft);stroke-width:3.2}
+.rumap .r.no{fill:url(#hatch);cursor:default}
+.rumap .r.no:hover,.rumap .r.no.on{fill:var(--soft)}
+.rumap .r.no.tiny{stroke:var(--soft)}
+.rumap .r.no.tiny:hover,.rumap .r.no.tiny.on{stroke:var(--ink)}
+/* Дом (Россия): ровная серая заливка без штриховки — это не «ещё не был», а место, откуда начинаются поездки */
+.rumap .r.home{fill:color-mix(in srgb,var(--soft) 45%,var(--surface))}
+.rumap .r.home:hover,.rumap .r.home.on{fill:var(--soft)}
+/* кружок-метка у посещённой маленькой страны (Беларусь, Куба): по цвету года, как сама страна */
+.rumap .r.dot{stroke:var(--ink);stroke-width:1.2}
+.k-n{background:repeating-linear-gradient(45deg,var(--soft) 0 2px,var(--line) 2px 4.5px)}
+
+.rumap .r.later.tiny{stroke:color-mix(in srgb,var(--soft) 35%,var(--surface))}
+
+/* ---------- переключатель темы ---------- */
+.theme-btn{font:inherit;font-size:1.1rem;line-height:1;width:2.4rem;height:2.4rem;display:inline-flex;align-items:center;justify-content:center;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:0;cursor:pointer}
+.theme-btn:hover{border-color:var(--ink)}
+.topbar-r{display:flex;gap:.6rem;flex-wrap:wrap}
+.ix-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.ix-page .theme-btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
+.ix-page .theme-btn:hover{border-color:#fff}
+
+/* ---------- просмотр фото ---------- */
+img.zoomable{cursor:zoom-in}
+.lb-open,.lb-open body{overflow:hidden;overscroll-behavior:none}
+.lb{position:fixed;inset:0;z-index:50;background:rgba(8,10,14,.94);display:flex;align-items:center;justify-content:center;padding:clamp(.5rem,3vw,2rem);touch-action:none;overscroll-behavior:contain}
+.lb[hidden]{display:none}
+.lb-f{margin:0;max-width:100%;max-height:100%;display:flex;flex-direction:column;align-items:center;gap:.7rem}
+.lb-f img{max-width:100%;max-height:calc(100vh - 8rem);max-height:calc(100dvh - 8rem);width:auto;height:auto;object-fit:contain;user-select:none}
+.lb-f figcaption{color:#E8EBE8;text-align:center;max-width:52rem;padding:0;font-size:.95rem}
+.lb-f figcaption time{color:#AEB5BA}
+.lb button{position:absolute;border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:999px;cursor:pointer;line-height:1}
+.lb button:hover{background:rgba(255,255,255,.28)}
+.lb-x{top:max(.8rem,env(safe-area-inset-top));right:.8rem;width:2.8rem;height:2.8rem;font-size:1.8rem}
+.lb-n{top:50%;transform:translateY(-50%);width:3rem;height:3.4rem;font-size:2.2rem}
+.lb-prev{left:.6rem}.lb-next{right:.6rem}
+.lb-c{position:absolute;top:max(1.1rem,env(safe-area-inset-top));left:1rem;color:#C9CED2;font-family:var(--sign);letter-spacing:.06em}
+@media (max-width:640px){.lb-n{top:auto;bottom:.8rem;transform:none}}
+
+/* ---- Карта дня и профиль высоты: строятся из GPS снимков (build.py). Точки — отобранные фото, клик ведёт к ним. */
+.daymap{background:var(--surface);border:1px solid var(--line);padding:.6rem}
+.daymap-svg,.profile-svg{display:block;width:100%;height:auto;font-family:var(--sign)}
+.dm-pt circle{fill:var(--surface);stroke:var(--ink);stroke-width:2;transition:fill .15s,r .15s}
+.dm-pt:hover circle,.dm-pt:focus circle{fill:var(--reg);stroke:var(--reg)}
+.pf-line{fill:none;stroke:var(--reg);stroke-width:2.5;stroke-linejoin:round}
+.pf-grid{stroke:var(--line);stroke-width:1}
+.pf-ax{fill:var(--soft);font-size:12px;letter-spacing:.04em}
+.daymap figcaption,.sec > .daymap-cap{font-size:.9rem;color:var(--soft)}
+figure:target .ph{outline:.25rem solid var(--reg);outline-offset:.25rem}
+figure[id]{scroll-margin-top:4rem}
+details.more{border-top:1px solid var(--line);padding-top:.6rem}
+details.more summary{cursor:pointer;font-family:var(--sign);letter-spacing:.06em;text-transform:uppercase;font-size:.9rem;color:var(--soft)}
+details.more[open] summary{margin-bottom:.6rem}
+
+/* ===== Главная: лента и списки (макет Б «Карта первой», решение автора 06.10.2026) ===== */
+/* --- лента «Любимые»: сразу после карты и поиска, перед списками округов --- */
+.fav{max-width:var(--wide);margin:clamp(1.6rem,4vw,2.4rem) auto 0;display:flex;flex-direction:column;gap:.9rem}
+.fav-h{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:2.6rem}
+.fav-h h2{margin:0;font-size:clamp(1.15rem,2.8vw,1.5rem);color:var(--sky-deep)}
+.fav-nav{display:flex;gap:.4rem}
+.fav-nav button{width:2.6rem;height:2.6rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.fav-nav button:hover{border-color:var(--sky)}
+.fav-nav button:disabled{opacity:.4;cursor:default}
+.fav-nav button:disabled:hover{border-color:var(--line)}
+.fav-nav svg{width:1.1rem;height:1.1rem;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+@media (hover:none){.fav-nav{display:none}}   /* на телефоне ленту листают пальцем, кнопки не нужны */
+.fav-row{list-style:none;margin:0;padding:0;display:flex;gap:1rem;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.fav-row::-webkit-scrollbar{display:none}
+.fc{flex:0 0 min(19rem,78vw);min-width:0;display:flex;scroll-snap-align:start}
+/* планшет и компьютер: в ленте помещается ровно две или три карточки, ничего не обрезано; дальше — кнопками или прокруткой */
+@media (min-width:641px){.fc{flex-basis:calc((100% - 1rem)/2)}}
+@media (min-width:900px){.fc{flex-basis:calc((100% - 2rem)/3)}}
+.fc a{display:flex;flex-direction:column;width:100%;background:var(--surface);border-radius:1.1rem;overflow:hidden;color:var(--ink);text-decoration:none}
+.fc a:focus-visible{outline-offset:-3px}
+.fc-ph{position:relative;display:block;aspect-ratio:4/3;overflow:hidden;background:var(--line)}
+.fc-ph img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+.fc a:hover .fc-ph img{transform:scale(1.04)}
+/* код на фото: тот же синий кружок, что в списках; белое кольцо отделяет его от любого кадра */
+.fc-ph .code{position:absolute;left:.75rem;top:.75rem;font-size:1.1rem;box-shadow:0 0 0 2px #fff}
+.fc-t{display:flex;flex-direction:column;gap:.45rem;flex:1;padding:.95rem 1.1rem 1.1rem}
+.fc-nm{font-family:var(--display);font-weight:700;font-size:1.02rem;line-height:1.2;letter-spacing:-.01em;text-wrap:balance}
+.fc a:hover .fc-nm{text-decoration:underline;text-underline-offset:.18em}
+.fc-meta{font-family:var(--sign);font-size:.84rem;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);line-height:1.3}
+.fc-hook{font-size:.95rem;line-height:1.45}
+.fc-go{margin-top:auto;padding-top:.6rem;font-weight:600;font-size:.92rem;color:var(--road)}
+@media (max-width:640px){
+  /* лента идёт от края до края экрана: следующая карточка выглядывает справа и подсказывает, что листается */
+  .fav-row{gap:.75rem;margin-inline:calc(-1*var(--gutter));padding-inline:var(--gutter);scroll-padding-inline:var(--gutter)}
+  .fav-h{min-height:0}
+  .fav-nav{display:none}
+}
+@media (prefers-reduced-motion:reduce){.fc-ph img{transition:none}.fc a:hover .fc-ph img{transform:none}}
+.ix-page .fav + .fo{margin-top:clamp(1.8rem,4vw,2.6rem)}
+.ix-page .fav[hidden] + .fo{margin-top:1.2rem}   /* лента скрыта (поиск, фильтр, хронология) — список сразу под поиском */
+
+/* --- списки округов: миниатюра 96×72 слева, код — кружком на её углу, под названием «табличка» и строка крючка --- */
+.ix-page .fo:not(.ahead) .regs{grid-template-columns:minmax(0,1fr);gap:1.15rem}
+@media (min-width:760px){.ix-page .fo:not(.ahead) .regs{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.4rem 2.2rem}}
+.ix-page .fo:not(.ahead) .reg{position:relative;grid-template-columns:6rem minmax(0,1fr);column-gap:.9rem;align-items:start}
+.ix-page .fo:not(.ahead) .reg .th-a{grid-column:1;grid-row:1;display:block;line-height:0}
+.ix-page .fo:not(.ahead) .reg .th{width:6rem;border-radius:.6rem}
+.ix-page .fo:not(.ahead) .reg > .code{grid-column:1;grid-row:1;justify-self:start;align-self:start;margin:-.4rem 0 0 -.4rem;z-index:2;font-size:.95rem;box-shadow:0 0 0 2px var(--surface)}
+.ix-page .fo:not(.ahead) .reg-t{grid-column:2;grid-row:1;align-self:center;gap:.2rem}
+.ix-page .fo:not(.ahead) .reg-t small{font-family:var(--sign);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;line-height:1.35}
+.hk{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--soft);font-size:.9rem;line-height:1.35}
+/* вся строка — одна большая ссылка на отчёт: нажимается и миниатюра, и крючок */
+.ix-page .fo:not(.ahead) .reg-t > div > a::after{content:"";position:absolute;inset:0;z-index:1}
+.ix-page .fo:not(.ahead) .reg-t small a{position:relative;z-index:2;white-space:nowrap}
+/* телефон: название чуть мельче и зазор уже — так в одну строку помещается больше названий */
+@media (max-width:640px){
+  .ix-page .fo:not(.ahead) .reg{column-gap:.75rem}
+  .ix-page .fo:not(.ahead) .reg-t > div{font-size:1rem}
+}
+
+/* ===== Шапка-обложка страницы региона (решение автора 06.10.2026, вариант А) =====
+   Собирается в build.py (cover_head): главный кадр первым во всю ширину экрана, код и название поверх нижней
+   части кадра на затемнении, места, крючок, паспорт и маршрут — под кадром. Цвет региона — --reg / --reg-ink. */
+.page-cover{position:relative;--inner:calc(var(--wide) + 2 * var(--gutter))}
+/* верхняя полоса лежит на кадре: ссылка и кнопка темы — на тёмных подложках, чтобы читались на любом небе */
+.page-cover .topbar{position:absolute;z-index:3;top:0;left:0;right:0;max-width:var(--inner);padding-inline:var(--gutter);padding-block:.8rem}
+.page-cover .topbar a{color:#fff;background:rgba(10,12,16,.62);padding:.5rem .75rem .55rem;line-height:1}
+.page-cover .topbar a:hover{text-decoration:none;background:rgba(10,12,16,.85)}
+.page-cover .theme-btn{background:rgba(10,12,16,.62);color:#fff;border-color:rgba(255,255,255,.45)}
+.page-cover .theme-btn:hover{border-color:#fff}
+.page-cover .topbar :focus-visible{outline-color:#fff}
+/* шапка: кадр от края до края экрана, остальное — по общей колонке страницы */
+.cover-head{max-width:none;margin-inline:calc(-1 * var(--gutter));padding-top:0;gap:0}
+.cover{display:grid;grid-template-columns:minmax(0,1fr)}
+/* высота полосы: на телефоне почти квадрат, но не выше ~2/3 экрана; на компьютере — так, чтобы под кадром
+   на экране 1440×900 поместились места, крючок, паспорт и маршрут */
+.cover .ph{grid-area:1/1;position:relative;width:100%;max-width:120rem;margin-inline:auto;background:#1B2430;
+  height:max(17rem,min(125vw,64vh,46rem));height:max(17rem,min(125vw,64svh,46rem))}
+/* общее правило обрезки для 90 разных кадров: середина кадра; ручных точек нет */
+.cover .ph img{position:relative;z-index:1;width:100%;height:100%;aspect-ratio:auto;object-fit:cover;object-position:50% 50%}
+/* вертикальный кадр в полосу не режется: он целиком, поля по бокам — его же размытая копия (img.cover-bg ставит сборка) */
+.cover.portrait .ph img{object-fit:contain}
+.cover .ph img.cover-bg{position:absolute;inset:0;z-index:0;object-fit:cover;filter:blur(1.4rem) brightness(.55);transform:scale(1.12)}
+/* затемнение: сверху лёгкое под полосу навигации, снизу плотное под название */
+.cover .ph::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:
+  linear-gradient(to bottom,rgba(8,10,14,.24) 0,rgba(8,10,14,0) 5.5rem),
+  linear-gradient(to top,rgba(8,10,14,.88) 0,rgba(8,10,14,.62) 5rem,rgba(8,10,14,0) 64%)}
+/* плашка с кодом и название — поверх нижней части кадра; щелчок проходит сквозь них к фото (лайтбокс) */
+.cover .reg-id{grid-area:1/1;align-self:end;z-index:3;pointer-events:none;width:100%;max-width:var(--inner);margin-inline:auto;
+  padding:0 var(--gutter) clamp(1rem,2.4vw,1.7rem);display:flex;flex-direction:column;align-items:flex-start;flex-wrap:nowrap;gap:clamp(.6rem,1.3vw,.9rem)}
+.cover .reg-id .code{font-size:clamp(2.2rem,5vw,3.2rem);box-shadow:0 2px 16px rgba(0,0,0,.35)}
+.cover h1{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.55),0 2px 24px rgba(0,0,0,.5)}
+/* узкий телефон (320–400 px): длинное слово («Калининградская») рвалось посреди — кегль уменьшается, чтобы самое
+   длинное слово названия (--nw букв, ставит сборка; ≈.83 em на букву в Unbounded) встало в строку целиком */
+@media (max-width:400px){.cover h1{font-size:min(1.7rem,calc((100vw - 2 * var(--gutter)) / (var(--nw,10) * .83)))}}
+.cover figcaption{grid-row:2;width:100%;max-width:var(--inner);margin-inline:auto;padding:.55rem var(--gutter) 0}
+.cover:target .ph{outline-offset:-.25rem}
+/* под кадром: места, крючок, паспорт, маршрут */
+.under{width:100%;max-width:var(--inner);margin-inline:auto;padding:1.15rem var(--gutter) 0;display:grid;grid-template-columns:minmax(0,1fr);gap:1rem}
+.under .hook::before{margin-bottom:.8rem}
+/* компьютер: слева места и крючок, справа паспорт столбиком — всё помещается на первый экран */
+@media (min-width:900px){
+  .cover .ph{height:max(20rem,min(56vh,44rem));height:max(20rem,min(56svh,44rem))}
+  .under{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"places pass" "hook pass" "route route";column-gap:clamp(2rem,5vw,4rem);row-gap:.9rem;padding-top:1.5rem}
+  .under .reg-places{grid-area:places}
+  .under .hook{grid-area:hook}
+  .under .route{grid-area:route;padding-top:.9rem;border-top:1px solid var(--line)}
+  /* паспорт не шире 22rem: длинное «как» (Карелия) иначе отжимало крючок в узкий столбик на шесть строк */
+  .under .passport{grid-area:pass;max-width:22rem;display:grid;grid-template-columns:auto auto;align-content:start;gap:.3rem 1.1rem;border-block:0;border-left:1px solid var(--line);padding:.15rem 0 .15rem clamp(1.2rem,2.4vw,2rem)}
+  .under .passport div{display:contents}
+}
+/* телефон: паспорт плотнее, маршрут — одной строкой с прокруткой вбок; прозрачный край строки значит «там есть ещё» */
+@media (max-width:640px){
+  .under{padding-top:.95rem;gap:.85rem}
+  .under .reg-places{font-size:.95rem;line-height:1.35}
+  .under .passport{font-size:.95rem;gap:.25rem 1.3rem;padding:.6rem 0}
+  .under .route{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;
+    margin-inline:calc(-1 * var(--gutter));padding:.1rem var(--gutter) .3rem;scroll-padding-inline:var(--gutter);
+    --fl:#000;--fr:transparent;
+    -webkit-mask-image:linear-gradient(to right,var(--fl) 0,#000 2rem,#000 calc(100% - 3rem),var(--fr) 100%);
+    mask-image:linear-gradient(to right,var(--fl) 0,#000 2rem,#000 calc(100% - 3rem),var(--fr) 100%)}
+  .under .route::-webkit-scrollbar{display:none}
+  .under .route li{flex:none;white-space:nowrap}
+  .under .route.scrolled{--fl:transparent}
+  .under .route.at-end{--fr:#000}
+  .under .route:focus-visible{outline-offset:-3px}
+}
+
+/* ---- Мелкие правки этапа 1 */
+/* 1. Вертикальные кадры и видео не выше окна: кадр виден целиком */
+.sec > .tall .ph img,.sec > .tall .ph video,.row.narrow .ph img,.row.narrow .ph video,.ph video{max-height:85vh;max-height:85svh;object-fit:contain;background:var(--surface)}
+/* 2. Рамка фокуса фото внутри .ph (overflow:hidden её обрезает): внутрь кадра, с белой подложкой для тёмных кадров */
+.ph img:focus-visible,.ph video:focus-visible{outline:3px solid var(--road);outline-offset:-6px;box-shadow:inset 0 0 0 6px #fff}
+/* 3. Рамка фокуса в синей шапке главной */
+.ix-head :focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+/* 4. Карточка региона на карте остаётся у нижнего края окна, пока карта на экране */
+.mapbox .mcard{position:sticky;bottom:.6rem;z-index:3;box-shadow:0 .2rem .9rem rgba(0,0,0,.22)}
+/* ===== Подвал и «читать дальше» ===== */
+.site-foot{margin-top:0;border-top:1px solid var(--line);background:var(--surface);color:var(--soft);font-family:var(--body);padding:1.6rem var(--gutter) calc(1.6rem + env(safe-area-inset-bottom,0px))}
+.site-foot .ft-in{max-width:var(--wide);margin:0 auto;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem 2rem}
+.site-foot .ft-t{min-width:0}
+.site-foot .ft-name{display:inline-block;font-family:var(--sign);text-transform:uppercase;letter-spacing:.05em;font-size:1rem;color:var(--ink);text-decoration:none}
+.site-foot a.ft-name:hover{text-decoration:underline}
+.site-foot p{margin:.35rem 0 0;font-size:.9rem;line-height:1.45}
+.site-foot .ft-top{font-family:var(--sign);text-transform:uppercase;letter-spacing:.06em;font-size:.9rem;color:var(--road);text-decoration:none;padding:.6rem 0;white-space:nowrap}
+.site-foot .ft-top:hover{text-decoration:underline}
+.site-foot.ft-home{background:var(--sky-bg);border-top-color:var(--sky)}
+.site-foot.ft-home .ft-name,.site-foot.ft-home .ft-top{color:var(--sky-deep)}
+/* ---- Карта точек съёмки: в SVG только номера мест и линия маршрута, названия — списком под картой (build.py, daymap_svg). */
+.daymap-svg{max-width:28rem;margin-inline:auto}
+.dm-route{stroke:var(--reg);stroke-width:2.5;stroke-linecap:round;opacity:.85}
+.dm-far{stroke-dasharray:2 6;stroke-width:2.5}
+.dm-lead{stroke:var(--soft);stroke-width:1}
+.dm-dot{fill:var(--ink)}
+.dm-num circle{fill:var(--ink);stroke:var(--surface);stroke-width:2}
+.dm-num text{fill:var(--surface);font-size:13px;font-weight:700}
+.dm-scale path{fill:none;stroke:var(--soft);stroke-width:1.5}
+.dm-scale text{fill:var(--soft);font-size:12px}
+.dm-list{margin:.6rem 0 .2rem;padding-left:1.8rem;font-size:1rem;line-height:1.5}
+.dm-list li::marker{font-family:var(--sign);font-weight:700}
+.dm-list a{color:var(--ink)}
+.dm-n{color:var(--soft);white-space:nowrap}
+
+/* ---------- Просмотр фото: увеличение и история ---------- */
+.lb-f img{transform-origin:center center;will-change:transform;-webkit-user-drag:none;-webkit-touch-callout:none}
+.lb-zoomed .lb-f img{cursor:grab}
+.lb-f figcaption,.lb-n{transition:opacity .2s}
+.lb-zoomed .lb-f figcaption,.lb-zoomed .lb-n{opacity:0;pointer-events:none}
+.lb-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+/* ---------- Оглавление и финал страницы региона ----------
+   Разметку ставит build.py (chapters_and_final): nav.toc после вводки, якоря g1, g2… у h2,
+   section.sec.final с оценкой и счётом, div.chap-bar — строка текущей главы на телефоне. */
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.story h2[id],.final{scroll-margin-top:3.6rem}
+.toc{border-block:1px solid var(--line);padding:.9rem 0 1rem}
+.toc-h{font-family:var(--sign);font-weight:600;font-size:.9rem;letter-spacing:.09em;text-transform:uppercase;color:var(--soft);margin-bottom:.5rem}
+.toc ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+.toc li{counter-increment:toc}
+.toc a{display:grid;grid-template-columns:2rem minmax(0,1fr);column-gap:.2rem;padding:.38rem 0;color:var(--ink);text-decoration:none;line-height:1.3}
+.toc a::before{content:counter(toc);grid-row:1/span 2;font-family:var(--sign);font-weight:600;color:var(--soft);font-variant-numeric:tabular-nums;padding-top:.05em}
+.toc a[href="#final"]::before{content:"·"}
+.toc-d{grid-column:2;font-family:var(--sign);font-size:.78rem;letter-spacing:.07em;text-transform:uppercase;color:var(--soft)}
+.toc-t{grid-column:2;font-weight:500}
+.toc a:hover .toc-t{text-decoration:underline;text-decoration-color:var(--reg);text-underline-offset:.2em}
+.toc a.on .toc-t{font-weight:700}
+.toc a.on::before{color:var(--reg)}
+.toc a:focus-visible{outline:2px solid var(--reg);outline-offset:2px}
+/* финал: метка «Итого» тем же почерком, что дата главы; сверху черта, чтобы блок не читался продолжением главы */
+.final-h{letter-spacing:.12em;border-top:1px solid var(--line);padding-top:clamp(1.6rem,4vw,2.4rem)}
+/* телефон и планшет: строка с названием текущей главы, пока шапка-обложка ушла вверх */
+.chap-bar{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:1rem;
+  padding:.45rem var(--gutter);padding-top:calc(.45rem + env(safe-area-inset-top));background:var(--bg);border-bottom:1px solid var(--line);
+  font-family:var(--sign);font-size:.9rem;letter-spacing:.05em;text-transform:uppercase;
+  transform:translateY(-100%);opacity:0;visibility:hidden;transition:transform .2s ease,opacity .2s ease,visibility 0s .2s}
+.chap-bar.show{transform:none;opacity:1;visibility:visible;transition:transform .2s ease,opacity .2s ease}
+.chap-bar a{color:var(--ink);text-decoration:none}
+.cb-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chap-bar .cb-up{flex:none;color:var(--soft)}
+@media (prefers-reduced-motion:reduce){.chap-bar,.chap-bar.show{transition:none}}
+/* широкий экран: оглавление липнет слева, в поле рядом с широкими кадрами (62rem) и не заходит на них */
+@media (min-width:1360px){
+  .chap-bar{display:none}
+  .toc-sec{display:contents}
+  .toc{position:fixed;top:5rem;left:1.5rem;width:calc((100vw - var(--wide)) / 2 - 3rem);max-height:calc(100vh - 7rem);overflow-y:auto;
+    border:0;padding:0;font-size:.9rem;transition:opacity .2s ease}
+  .toc.off{opacity:0;pointer-events:none}
+  .toc a{grid-template-columns:1.6rem minmax(0,1fr);padding:.3rem 0}
+  .toc-d{font-size:.72rem}
+}
+@media (min-width:1360px) and (prefers-reduced-motion:reduce){.toc{transition:none}}
+/* ===== Раскладка фото: телефон и компьютер ===== */
+/* Заглушка, пока кадр грузится: спокойный серый вместо белого прямоугольника (в обеих темах --line). */
+.ph,.ph img,.ph video{background:var(--line)}
+/* Компьютер: три ширины. Текст — --col; медиа (wide, row, row.narrow) — одна ширина и один левый край; tall и mid — по тексту. */
+.sec > .tall{max-width:var(--col)}
+.sec > .tall .ph,.sec > .tall figcaption{max-width:26rem;margin-inline:auto}
+@media (min-width:900px){
+  :root{--media:74rem}
+  .sec > .wide,.sec > .row,.sec > .row.narrow{max-width:var(--media)}
+  /* Пара вертикальных кадров: ширина такая, чтобы кадр 3:4 не выше окна */
+  .sec > .row.narrow{max-width:min(var(--media),calc(127svh + 1rem))}
+}
+/* Ряды: кадры одной высоты, подписи на одной линии. Единая рамка ряда + object-fit:cover */
+.sec > .row{align-items:stretch}
+.sec > .row figure{display:flex;flex-direction:column;min-width:0}
+.sec > .row .ph{aspect-ratio:4/3}
+.sec > .row .ph img{height:100%;object-fit:cover}
+.sec > .row .ph video{height:100%;object-fit:contain;max-height:none}
+.sec > .row.narrow .ph{aspect-ratio:3/4}
+.sec > .row.narrow .ph img,.sec > .row.narrow .ph video{max-height:none}
+/* Телефон: пары вертикальных кадров остаются рядом; смешанные ряды — столбиком; wide — от края до края */
+@media (max-width:640px){
+  .sec > .row.narrow{grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+  .sec > .row.narrow figure{max-width:none}
+  .sec > .row.narrow figcaption{font-size:.85rem;overflow-wrap:anywhere}
+  .sec > .row .ph{aspect-ratio:auto}
+  .sec > .row .ph img,.sec > .row .ph video{height:auto}
+  .sec > .row.narrow .ph{aspect-ratio:3/4}
+  .sec > .row.narrow .ph img,.sec > .row.narrow .ph video{height:100%}
+  .sec > .wide{width:auto;max-width:none;margin-inline:calc(-1 * var(--gutter))}
+  .sec > .wide figcaption{padding-inline:var(--gutter)}
+}
+
+/* Возврат к списку и прочитанное */
+li.reg.back-hl{animation:backhl 2.6s ease-out}
+@keyframes backhl{0%,60%{background:color-mix(in srgb,var(--soft) 22%,transparent)}100%{background:transparent}}
+@media (prefers-reduced-motion:reduce){li.reg.back-hl{animation:none;background:color-mix(in srgb,var(--soft) 22%,transparent)}}
+li.reg.read .reg-t>div>a::after,.fc.read .fc-nm::after{content:"\00a0\2713";color:var(--soft);font-size:.8em;font-weight:400}
+.ix-page .fo:not(.ahead) .reg-t small a{white-space:normal}
+.story h1,.story h2,.story h3{overflow-wrap:anywhere}
+/* ==== Карта главной: телефон и управление (этап 3) ==== */
+/* увеличенную карту тянут пальцем: прокрутка страницы с неё не начинается */
+.rumap.zoomed{touch-action:none;cursor:grab}
+.rumap.zoomed:active{cursor:grabbing}
+/* легенда годов — она же фильтр по году */
+.legend .ychip{display:inline-flex;align-items:center;gap:.4rem;font:inherit;color:inherit;background:none;border:1px solid transparent;border-radius:999px;padding:.35rem .6rem;margin:-.35rem -.2rem;cursor:pointer;min-height:2.2rem}
+.legend .ychip:hover{border-color:var(--sky)}
+.legend .ychip[aria-pressed="true"]{border-color:var(--sky);background:var(--sky-bg);color:var(--ink);font-weight:600}
+.legend .ychip:focus-visible{outline:2px solid var(--sky);outline-offset:1px}
+.legend .k-ahead{padding-left:.4rem}
+/* один проигрыватель: «Путь по годам» — его главная кнопка с подписью */
+.tl-ctl .play{width:auto;padding:0 1rem 0 .8rem;gap:.4rem;font:600 .88rem/1 var(--body);white-space:nowrap}
+.tl-ctl .play svg{flex:none}
+@media (max-width:640px){
+  .tl{grid-template-columns:minmax(0,1fr);grid-template-areas:"ctl" "track" "read" "all"}
+  .tl-ctl{justify-content:space-between}
+  .tl-ctl .play{flex:1}
+}
+
+/* ---------- Поездки и о проекте ---------- */
+.ix-trips{font-family:var(--sign);font-size:.95rem;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.ix-trips:hover{text-decoration:underline}
+.ft-nav{margin:.4rem 0 0}
+.tr-head,.tr-year,.ab-text{max-width:var(--wide);margin-inline:auto}
+.tr-head h1,.ab-text h1{font-family:var(--sign);font-size:clamp(2rem,6vw,3.2rem);line-height:1.05;margin:1rem 0 .8rem}
+.tr-lead{max-width:42rem;color:var(--soft)}
+.tr-year{margin-top:clamp(2rem,5vw,3rem)}
+.tr-yh{display:flex;align-items:baseline;justify-content:space-between;gap:.4rem 1rem;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:.5rem}
+.tr-yh h2{font-family:var(--sign);font-size:1.8rem;margin:0;line-height:1}
+.tr-yh span{color:var(--soft);font-family:var(--sign);font-size:.9rem;letter-spacing:.04em;text-transform:uppercase}
+.tr-list{list-style:none;margin:0;padding:0}
+.tr-card{display:flex;gap:1rem;align-items:flex-start;padding:1rem 0;border-bottom:1px solid var(--line)}
+.tr-th{width:6rem;aspect-ratio:4/3;object-fit:cover;border-radius:.55rem;flex:none;background:var(--line)}
+.tr-t{min-width:0;flex:1}
+.tr-d{font-weight:600}
+.tr-m{color:var(--soft);font-size:.92rem}
+.tr-chain{list-style:none;margin:.55rem 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.45rem .9rem}
+.tr-chain a{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;color:var(--ink);min-width:0}
+.tr-chain a:hover small{text-decoration:underline}
+.tr-chain .code{font-size:1rem;background:var(--c,var(--ink));color:#fff}
+.tr-chain small{font-size:.85rem;overflow-wrap:anywhere}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tr-chain .code{background:var(--cd,var(--ink));color:#14100A}}
+:root[data-theme="dark"] .tr-chain .code{background:var(--cd,var(--ink));color:#14100A}
+.ab-page{min-height:70vh}
+.ab-text p{margin:0 0 1rem;max-width:40rem}
+.ab-text .ab-links{font-family:var(--sign);letter-spacing:.04em;text-transform:uppercase;font-size:.95rem;margin-top:2rem}
+@media (min-width:720px){.tr-th{width:9rem}}
+
+/* ---------- Проигрыватель поездок ---------- */
+.tl-read strong{font-size:1.15rem;line-height:1.25}
+.tl-read [hidden]{display:none}
+.tl-chain{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .3rem;margin-top:.35rem;color:var(--ink);font-size:.92rem}
+.tl-chain .st{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .55rem .2rem .25rem;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);text-decoration:none;max-width:100%}
+.tl-chain a.st:hover,.tl-chain a.st:focus-visible{border-color:var(--sky);color:var(--sky-deep)}
+.tl-chain .st b{flex:none;min-width:1.7rem;padding:.1rem .3rem;border-radius:999px;background:var(--sky);color:#fff;font:600 .78rem/1.2 var(--sign);text-align:center}
+.tl-chain .ar{color:var(--soft)}
+
+/* ==== Главная: активный фильтр ==== */
+.chip[aria-pressed="true"]{box-shadow:0 0 0 2px var(--sky-bg,rgba(0,0,0,.1))}
+.legend:has(.ychip[aria-pressed="true"]) .ychip[aria-pressed="false"]{opacity:.5}
+.legend .ychip[aria-pressed="true"]{background:var(--sky);border-color:var(--sky);color:#fff;font-weight:700}
+.legend .ychip[aria-pressed="true"] i{box-shadow:0 0 0 2px #fff}
+.fnote{max-width:var(--wide);margin-inline:auto;display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .8rem;margin-block:1rem 0;padding:.6rem .9rem;border:1px solid var(--sky);background:var(--sky-bg);color:var(--ink);border-radius:.6rem;font-size:.95rem}
+.fnote[hidden]{display:none}
+.fnote button{font:inherit;font-weight:600;color:var(--sky);background:none;border:0;padding:.3rem .2rem;cursor:pointer;text-decoration:underline;min-height:2.2rem}
+/* ---- Схема точек съёмки (build.py, daymap_v2): силуэт города или региона, все снимки архива точками, номера мест.
+   Радиус точки снимка задан в единицах схемы (ширина 360): на телефоне схема ~330 px — 3,3 ≈ 3 px на экране,
+   на компьютере 448 px (max-width 28rem) — 2,8 ≈ 3,5 px. */
+.dms + .dms{margin-top:.6rem}
+.dms-city{fill:color-mix(in srgb,var(--reg) 16%,transparent);stroke:var(--reg);stroke-width:1.2;stroke-linejoin:round}
+.dms-reg{fill:color-mix(in srgb,var(--reg) 9%,transparent);stroke:color-mix(in srgb,var(--reg) 70%,var(--soft));stroke-width:1;stroke-linejoin:round}
+.dms-region .dms-city{stroke-width:.8}
+.dms-shot{fill:var(--reg);opacity:.85;r:3.3px}
+@media (min-width:641px){.dms-shot{r:2.8px}}
+.dms-out circle{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+.dms-out text{fill:var(--ink)}
+.dms-group rect,.dms-group circle{fill:var(--reg);stroke:var(--surface);stroke-width:2}
+.dms-group text{fill:#fff}
+.dms-box{fill:var(--surface);stroke:var(--line);stroke-width:1}
+.dms-inset .dms-reg{stroke-width:.8}
+.dms-cap{fill:var(--ink)}
+.dms-here{fill:none;stroke:var(--reg);stroke-width:2}
+.dms-legend{margin:.5rem 0 0;font:600 .9rem/1.4 var(--sign);color:var(--ink)}
+.dms-osm{font-weight:400;color:var(--soft)}
+/* Две схемы (город и регион): на компьютере — в ряд, одного размера (у обеих viewBox 360×330), подпись и список — под обеими;
+   рисунок выходит из колонки текста в широкую, чтобы каждая схема была не мельче одиночной. */
+.dms-pair .dms + .dms{margin-top:.6rem}
+@media (min-width:900px){
+  .sec > .daymap:has(.dms-pair){grid-column:1/-1;width:100%;max-width:var(--wide);margin-inline:auto}
+  .dms-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start}
+  .dms-pair .dms{max-width:none;margin:0}
+  .dms-pair .dms + .dms{margin-top:0}
+}
+
+/* «Мир»: в плашке флаг и код ISO (решение автора 06.10.2026) — круг на главной становится «таблеткой» */
+.code .flag{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;font-weight:400;font-size:.9em}
+.ix-page .code{padding:0 .55em;white-space:nowrap}
