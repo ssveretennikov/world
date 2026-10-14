@@ -52,7 +52,6 @@ D = [
  ('Европа', 'Европа', [
   ('BY','Беларусь','Минск','v',[('Минск за день','LOCAL:by-2023-minsk/index.html'),('Гродно, Поставы, Несвиж и Мир','LOCAL:by-2025-grodno/index.html')]),
   ('TR','Турция','Анкара','v',[('Кемер','LOCAL:tr-2020-kemer/index.html')]),
-  ('UA','Украина','Киев','v',[('Закарпатье','LOCAL:ua-2011-zakarpattia/index.html')]),
  ]),
  ('Азия', 'Азия', [
   ('JP','Япония','Токио','v',[('Токио','LOCAL:jp-2024-tokyo/index.html'),('Никко','LOCAL:jp-2024-nikko/index.html'),('Хаконе','LOCAL:jp-2024-hakone/index.html'),
@@ -1097,7 +1096,6 @@ PAGES = [
     dict(slug='eg-2021-cairo', title='EG · Египет · Каир, Гиза и Александрия', prev=None, next=('EG', 'Луксор', '../eg-2021-luxor/index.html', 'Дальше по маршруту'), color=None),
     dict(slug='eg-2021-luxor', title='EG · Египет · Луксор', prev=('EG', 'Каир, Гиза и Александрия', '../eg-2021-cairo/index.html', 'Раньше по маршруту'), next=None, color=None),
     dict(slug='tr-2020-kemer', title='TR · Турция · Кемер', prev=None, next=None, color=None),
-    dict(slug='ua-2011-zakarpattia', title='UA · Украина · Закарпатье', prev=None, next=None, color=None),
 ]
 
 TRIPS = [t for t in (json.load(open(os.path.join(ROOT, 'data', 'trips.json'), encoding='utf-8'))
