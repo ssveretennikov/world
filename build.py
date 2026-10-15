@@ -860,7 +860,8 @@ def cover_head(src):
     # Копия — отдельная картинка, а не url() в стилях: адрес в style="" считался бы от series.css в корне сайта
     ph = (f'<div class="ph"><img class="cover-bg" src="{img_src}"{ss} alt="" aria-hidden="true">' if portrait else '<div class="ph">')
     # на узком телефоне кегль названия подбирается так, чтобы самое длинное слово встало в строку целиком
-    longest = max(len(wd) for wd in re.sub(r'<[^>]+>', '', h1.group(1)).split()) if h1.group(1).strip() else 1
+    h1_text = re.sub(r'<small[^>]*>.*?</small>', '', h1.group(1), flags=re.S)   # строка страны над названием в длину не считается
+    longest = max(len(wd) for wd in re.sub(r'<[^>]+>', '', h1_text).split()) if h1_text.strip() else 1
     head = (f'<header class="reg-head cover-head">\n'
             f'  <figure class="hero-ph cover{" portrait" if portrait else ""}"{fig_attrs}>\n'
             f'    {ph}<img fetchpriority="high" {img_attrs}></div>\n'
